@@ -1,14 +1,28 @@
 const puppeteer = require('puppeteer');
 const {types} = require("./utils/types");
 
+// hello! 
+// go to index.js and type your email and password into the given places
+// enter the words you want to type below
 const words = [
-    ".w",
-    ".t",
-    ".ot"
+    "!w",
+    "!t",
+    "!ot"
 ]
+
+// now enter the time intervals you want to set for each of them (respective lines)
+const timeInterval = [
+    5,
+    10,
+    17
+]
+
+// copy your serverID and channel ID here
+const serverID = "833842848860340265"
+const channelID= "833842848860340269"
 let logCount = 0;
 
-const BASE_URL = 'https://discord.com/channels/833842848860340265/833842848860340269';
+const BASE_URL = `https://discord.com/channels/${serverID}/${channelID}`;
 // change this & enter the channel url
 const discord = {
     browser: null,
@@ -42,7 +56,7 @@ const discord = {
         })
 
 
-        await discord.page.waitFor(100);
+        await discord.page.waitForSelector('input[name="email"]');
 
         /* username and password */
 
@@ -72,17 +86,10 @@ const discord = {
      * @return {Promise<void>}
      */
 
-    likeChannelProcess: async (serverID, channelID, delay= 1) => {
-            types('string', serverID);
-            types('string', channelID);
+    likeChannelProcess: async () => {
 
             async function initalStart () {
                 await discord.page.waitForSelector('span[data-slate-object="text"]');
-                await discord.page.type('span[data-slate-object="text"]', ".w\n.t\n.ot\n", {
-                    delay: 100
-                });
-                await discord.page.waitFor(1000);
-                await discord.page.keyboard.press('Enter')
 
                 console.debug('Auto typer started ' + new Date() )
 
@@ -128,11 +135,15 @@ const discord = {
                 console.debug('Message sent: ' + words[2] + ' , at: ' + new Date() + ', Message Count: ' + logCount )
             }
 
-            // change the first number for minutes
-            // 3 * 60 * 1000 = 180000ms === 3 minutes
-            setInterval(typeWord0, 10 * 1000)
-            setInterval(typeWord1, 15 * 1000)
-            setInterval(typeWord2, 16 * 1000)
+            await typeWord0();
+            setInterval(typeWord0, timeInterval[0]* 1000 + 500)
+            await discord.page.waitFor(2*1000);
+            await typeWord1();
+            setInterval(typeWord1, timeInterval[1]* 1000 + 500)
+            await discord.page.waitFor(2*1000);
+            await typeWord2();;
+            setInterval(typeWord2, timeInterval[2]* 1000 + 500)
+            await discord.page.waitFor(2*1000);
 
     }
 }
