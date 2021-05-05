@@ -1,28 +1,38 @@
 const puppeteer = require('puppeteer');
 const {types} = require("./utils/types");
-
 // hello! 
 // go to index.js and type your email and password into the given places
 // enter the words you want to type below
 const words = [
     "!w",
     "!t",
-    "!ot"
+    "!ot",
+    "!buy flipper",
+    "!buy karaoke",
+    "!buy music",
+    "!buy chef"
+    
 ]
 
 // now enter the time intervals you want to set for each of them (respective lines)
 const timeInterval = [
-    5,
-    10,
-    17
+    540,
+    240,
+    1800,
+    8*360,
+    6*360,
+    4*360,
+    4*360
 ]
 
 // copy your serverID and channel ID here
 const serverID = "833842848860340265"
 const channelID= "833842848860340269"
-let logCount = 0;
 
-const BASE_URL = `https://discord.com/channels/${serverID}/${channelID}`;
+let logCount = 0;
+types('string', serverID);
+types('string', channelID);
+const BASE_URL = `https://discord.com/channels/${serverID}/${channelID}`
 // change this & enter the channel url
 const discord = {
     browser: null,
@@ -61,11 +71,11 @@ const discord = {
         /* username and password */
 
         await discord.page.type('input[name="email"]', username, {
-            delay: 100
+            delay: 0
         });
 
         await discord.page.type('input[name="password"]', password, {
-            delay: 110
+            delay: 0
         });
 
         /* clicking on login button */
@@ -98,52 +108,37 @@ const discord = {
             await initalStart();
 
 
-            async function typeWord0 () {
-                await discord.page.type('span[data-slate-object="text"]', words[0], {
+            function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            let typeLoop = async () => {
+            await discord.page.waitForSelector('span[data-slate-object="text"]');
+            for (let i = 0; i < words.length; i++) {
+                await discord.page.type('span[data-slate-object="text"]', words[i] + "\n", {
                     delay: 100
                 });
 
-                await discord.page.keyboard.press('Enter')
 
                 logCount++
 
                 // this logs the time the message was sent at and the total message count
-                console.debug('Message sent: ' + words[0] + ' , at: ' + new Date() + ', Message Count: ' + logCount )
+                console.debug('Message sent: ' + words[i] + ' , at: ' + new Date() + ', Message Count: ' + logCount )
+                setInterval(async() => { 
+                    await discord.page.type('span[data-slate-object="text"]', words[i] + "\n", {
+                        delay: 100
+                    });
+
+
+                    logCount++
+
+                    // this logs the time the message was sent at and the total message count
+                    console.debug('Message sent: ' + words[i] + ' , at: ' + new Date() + ', Message Count: ' + logCount )
+                }, timeInterval[i]*1000+500)
+                await sleep(3123);
             }
-            async function typeWord1 () {
-                await discord.page.type('span[data-slate-object="text"]', words[1], {
-                    delay: 100
-                });
-
-                await discord.page.keyboard.press('Enter')
-
-                logCount++
-
-                // this logs the time the message was sent at and the total message count
-                console.debug('Message sent: ' + words[1] + ' , at: ' + new Date() + ', Message Count: ' + logCount )
             }
-            async function typeWord2 () {
-                await discord.page.type('span[data-slate-object="text"]', words[2], {
-                    delay: 100
-                });
-
-                await discord.page.keyboard.press('Enter')
-
-                logCount++
-
-                // this logs the time the message was sent at and the total message count
-                console.debug('Message sent: ' + words[2] + ' , at: ' + new Date() + ', Message Count: ' + logCount )
-            }
-
-            await typeWord0();
-            setInterval(typeWord0, timeInterval[0]* 1000 + 500)
-            await discord.page.waitFor(2*1000);
-            await typeWord1();
-            setInterval(typeWord1, timeInterval[1]* 1000 + 500)
-            await discord.page.waitFor(2*1000);
-            await typeWord2();;
-            setInterval(typeWord2, timeInterval[2]* 1000 + 500)
-            await discord.page.waitFor(2*1000);
+            typeLoop();
 
     }
 }
